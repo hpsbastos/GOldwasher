@@ -1,0 +1,14 @@
+{
+    "arabidopsis": {
+
+        "insertlink1": "<a href=\"https://www.arabidopsis.org/servlets/Search?type=general&search_action=detail&name=+'+dialogcontent[t]+'&sub_type=gene\" target=\"_blank\">'+dialogcontent[t]+'</a> '+descript+'</br>';",
+        "insertlink2": "<a name=\"{{ id }}\" href=\"https://www.arabidopsis.org/servlets/Search?type=general&search_action=detail&name=+{{ id }}&sub_type=gene\" target=\"_blank\">{{ id }}</a>"
+    },
+
+    "phaeodactylum": {
+
+        "insertlink1": "'<a href=\"http://protists.ensembl.org/Phaeodactylum_tricornutum/Transcript/Summary?t='+dialogcontent[t]+'\" target=\"_blank\">'+dialogcontent[t]+'</a> '+descript+'</br>';",
+        "insertlink2": "<a name=\"{{ id }}\" href=\"http://protists.ensembl.org/Phaeodactylum_tricornutum/Transcript/Summary?t={{ id }}\" target=\"_blank\">{{ id }}</a>"
+    }
+
+}
