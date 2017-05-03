@@ -4,9 +4,11 @@
 import sys, os, argparse, shutil, codecs, json
 from configobj import ConfigObj
 from datetime import datetime as dt
-import GOgalore as gg
+
 from makimono import enricher
 from makimono import toolbox
+
+import hoarder, oboe, misc
 
 
 def create_dir(dirpath):
@@ -68,7 +70,7 @@ if __name__ == "__main__":
 
 
 
-    M = gg.Maestro(os.path.join(annotDir, descriptionFile))
+    M = misc.Slicer(os.path.join(annotDir, descriptionFile))
 
 
     # Do the (up|down) splits
@@ -103,6 +105,10 @@ if __name__ == "__main__":
     for f in files:
         M.writeoutAdditionalAnnotation(splitslocation, enrichsuffix, f)
 
+
+
+
+
     # Perform GO enrichment
     # -------------------------------------------------------------------------
     print "Computing GO term enrichment..."
@@ -129,12 +135,18 @@ if __name__ == "__main__":
 
 
 
+
+
+
     # Generate GO graphs
     # -------------------------------------------------------------------------
     print "Generating GO graphs..."
 
 
-    X = gg.OBOe(obopath)
+    X = oboe.OBOe(obopath)
+
+
+
 
     # target orthologonal ontologies
     aspects = ["BP", "MF", "CC"]
@@ -187,7 +199,7 @@ if __name__ == "__main__":
         jannots["genes"] = json.dumps(annotDict.keys())
 
         name = os.path.splitext(f)[0]
-        scaffold = gg.Templater(name, annotDict, org)
+        scaffold = hoarder.Templater(name, annotDict, org)
 
         # gets results from topGO/GOstats (filtered by p-value)
         enriched = toolbox.process_enrichment_values(annotedlocation, 
