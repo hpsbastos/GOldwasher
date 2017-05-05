@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import os
+import os, re
 import pandas as pd
 
 pd.set_option('display.max_colwidth', -1)
@@ -85,3 +85,96 @@ class Slicer(object):
             except:
                 OUT.write(line.strip('\n')+"\t\n")
         OUT.close()
+
+
+
+
+
+    def read_annotation_file(self, directory, f):
+
+        """
+        Reads and parses a tsv annotation file into "two columns" split:
+        identifier(key):annotations(values). -- all available annotations.
+        Note: Expects whitespace, comma or semi-colon as separator even on
+              unannotated entries.
+        """
+
+        annotDict = {}
+
+        patt = re.compile('([^,;\s]+)[ ,;\t\v]+(.*)', re.IGNORECASE)
+
+        with open(os.path.join(directory,f), 'r') as fh:
+            for line in fh:
+
+                m = patt.search(line)
+                if m:
+                    annotDict.setdefault(m.group(1), []).append(m.group(2).strip())
+
+        return annotDict
+
+
+
+
+
+
+    # WARNING: Currently relies on a strict folder structure and file name pattern
+    #          if no enrichment results are being shown probably that structure is
+    #          not being met (assuming enrichment data is actually available).
+    def process_enrichment_values(self, directory, basename, alpha):
+
+        """
+        Processes KEGG/GO enrichment results files (produced by GOstats and topGO)
+        into a dictionary.
+        """
+        
+
+        try:
+            bp = self.read_tsv(os.path.join(directory, 'goenrich/BP', 
+                                  basename+'_enrichment.tsv'), "GO Biological Process")
+        except:
+            bp = None
+            
+            
+        try:
+            mf = self.read_tsv(os.path.join(directory, 'goenrich/MF', 
+                                  basename+'_enrichment.tsv'), "GO Molecular Function")
+        except:
+            mf = None
+            
+        try:
+            cc = self.read_tsv(os.path.join(directory, 'goenrich/CC',
+                                  basename+'_enrichment.tsv'), "GO Cellular Component")
+        except:
+            cc = None
+            
+            
+        try:
+            kegg = self.read_tsv(os.path.join(directory, 'keggenrich', 
+                                    basename+'_enrichment.tsv'), "KEGG Pathways")
+        except:
+            kegg = None
+
+
+        extra = {'bp':bp, 'mf':mf, 'cc': cc, 'kegg':kegg, 'alpha': alpha}
+
+        return extra
+
+
+    def read_tsv(self, tsvpath, ont):
+
+        """
+        Reads enrichment results tsv files (as produced either by GOstats or
+        the topGO R packages) into pandas dataframes (including the headers).
+        """
+
+        try:
+            if ont != "KEGG Pathways":
+                df = pd.read_csv(tsvpath, sep="\t")
+            else:
+                df = pd.read_csv(tsvpath, sep="\t", converters={'KEGGID': lambda x: str(x)})
+        except:
+            f = os.path.splitext(os.path.basename(tsvpath))[0]
+            print "No %s enrichment found for %s!" % (ont, f)
+            raise
+
+        return df

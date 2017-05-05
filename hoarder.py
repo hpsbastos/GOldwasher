@@ -65,7 +65,8 @@ class Templater(object):
             }
 
             table.sortable 
-            th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after { 
+            th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):
+                    not(.sorttable_nosort):after { 
                 content: " '''+str('\\25B4\\25BE')+'''" 
             }
 
@@ -137,8 +138,7 @@ class Templater(object):
             cc = None
             kegg = None
             alpha = 0.05
-            # TODO: testing...    
-            #jannots = None
+            # TODO: test this/alternatives
             jgenes = None
 
 
@@ -181,7 +181,8 @@ class Templater(object):
                     var selector = "target" + linkID;
 
                     // Define a new observer
-                    var obs = new MutationObserver(function(mutations, observer) {
+                    var obs = new MutationObserver(function(mutations, 
+                                                            observer) {
                       // look through all mutations that just occured
                       for(var i=0; i<mutations.length; ++i) {
                         // look through all added nodes of this mutation
@@ -227,7 +228,8 @@ class Templater(object):
             function displayDialog(targetDiv) {
 
               var name = document.getElementById( targetDiv ).name
-              var dialog = $( document.getElementById( 'target' + targetDiv ) ).dialog({
+              var dialog = $( document.getElementById( 'target' + 
+                                                        targetDiv ) ).dialog({
                 title: name,
                 width: 800
               });
@@ -263,7 +265,8 @@ class Templater(object):
 
 
         # pre-process enrichment data for display
-        t_bp, t_mf, t_cc, t_kegg = self.process_enrichment_dict(bp, mf, cc, kegg, alpha)
+        t_bp, t_mf, t_cc, t_kegg = self.process_enrichment_dict(bp, mf, cc,
+                                                                kegg, alpha)
 
 
         if bp is not None or mf is not None or cc is not None:
@@ -534,7 +537,7 @@ class Templater(object):
             <thead>
                 <tr>
                     <th scope="col">Identifier</th>
-                    <th scope="col">Annotations</th>    
+                    <th scope="col">Descriptor</th>    
                 </tr>
             </thead>
             <tbody>

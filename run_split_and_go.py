@@ -5,10 +5,7 @@ import sys, os, argparse, shutil, codecs, json
 from configobj import ConfigObj
 from datetime import datetime as dt
 
-from makimono import enricher
-from makimono import toolbox
-
-import hoarder, oboe, misc
+import hoarder, oboe, misc, enricher
 
 
 def create_dir(dirpath):
@@ -195,14 +192,14 @@ if __name__ == "__main__":
 
     jannots = {}
     for f in files:
-        annotDict = toolbox.read_annotation_file(annotedlocation, f)
+        annotDict = M.read_annotation_file(annotedlocation, f)
         jannots["genes"] = json.dumps(annotDict.keys())
 
         name = os.path.splitext(f)[0]
         scaffold = hoarder.Templater(name, annotDict, org)
 
         # gets results from topGO/GOstats (filtered by p-value)
-        enriched = toolbox.process_enrichment_values(annotedlocation, 
+        enriched = M.process_enrichment_values(annotedlocation, 
                                         os.path.splitext(f)[0], alpha)
         # adds "genes" list to the dictionary as new key value
         enriched.update(jannots)
