@@ -5,7 +5,7 @@ import networkx as nx
 import pandas as pd
 import os, math, subprocess, tempfile
 
-from ontology import OBOOntology
+from libraries.ontology import OBOOntology
 
 pd.set_option('display.max_colwidth', -1)
 pd.options.mode.chained_assignment = None  # default='warn'

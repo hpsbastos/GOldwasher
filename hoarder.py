@@ -4,14 +4,11 @@
 import pandas as pd
 import re, json
 
-from ontology import OBOOntology
 from jinja2 import Template
 from decimal import *
 
 pd.set_option('display.max_colwidth', -1)
 pd.options.mode.chained_assignment = None  # default='warn'
-
-
 
 
 class Templater(object):
@@ -42,8 +39,6 @@ class Templater(object):
 
 
 
-
-
     # NOTE: currently this method overrides "process_enrichment_dict()" 
     #       regarding the display of missing (None) enrichment info.
     def render_main_page(self, plus = None):
@@ -54,38 +49,13 @@ class Templater(object):
         results.     
         """
 
-        #                   dir: ltr;
-
-        # TODO: make css customizing interface/options and/or add as external
-        csstables = '''
-          <style type="text/css">
-
-            .etables {
-                width: 1200px;
-            }
-
-            table.sortable 
-            th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):
-                    not(.sorttable_nosort):after { 
-                content: " '''+str('\\25B4\\25BE')+'''" 
-            }
-
-            </style>
-            '''
-
-
-
         css_resources = '''
-          <link href="support/tab-content/template1/tabcontent.css" 
-                  rel="stylesheet" type="text/css" />
+          <link href="support/custom.css" rel="stylesheet" 
+                                          type="text/css" />
+          <link href="support/tab-content/tabcontent.css" 
+                                          rel="stylesheet" type="text/css" />
           <link href="support/jquery-ui.css" rel="stylesheet" type="text/css"/>
-
-            '''+csstables
-
-
-#       <link href="support/jquery-ui.css" rel="stylesheet" type="text/css"/>
-
-
+        '''
 
 
         js_resources = '''
@@ -95,17 +65,18 @@ class Templater(object):
           <script type="text/javascript" src="support/descriptions.js">
           </script>
 
+
           <!-- Static support (libraries) files -->
-          <script type="text/javascript" src="support/sorttable.js"></script>
+          <script src="support/sorttable.js" type="text/javascript"></script>
 
-          <script type="text/javascript" 
-          src="support/tab-content/tabcontent.js"></script>
+          <script src="support/tab-content/tabcontent.js"
+          type="text/javascript"></script>
 
-          <script type="text/javascript" 
-          src="support/svg-pan-zoom/svg-pan-zoom.js"></script>
+          <script  src="support/svg-pan-zoom/svg-pan-zoom.js" 
+          type="text/javascript"></script>
 
-          <script type="text/javascript" src="support/jquery-1.10.2.js"></script>
-          <script type="text/javascript" src="support/jquery-ui.js"></script>
+          <script src="support/jquery-1.10.2.js" type="text/javascript"></script>
+          <script src="support/jquery-ui.js" type="text/javascript" ></script>
 
            '''
 
@@ -147,11 +118,8 @@ class Templater(object):
         if jgenes is not None:
 
 
-
-
             bigjson = '''
             <script type="text/javascript">
-
 
 
             function toggle(target) {
@@ -211,15 +179,15 @@ class Templater(object):
 
                     var dialogcontent = get_genes(linkID);
 
-                    var output = "";
+                    var output = '<table style="border:none; width:100%;">';
                     for (t in dialogcontent){
                         var descript = get_desc(dialogcontent[t]);
                         output += '''+self.link1+'''}
+                    output += '</table>'
                     $div.html(output);
                     $("body").append($div);
 
                     }); // closes "open_dialog" click event
-
 
             }); // closes the function...
 
@@ -287,7 +255,7 @@ class Templater(object):
             </span>
 
             <a id="displayBP" href="javascript:toggle('BP');">hide</a></br>
-            <div id="toggleBP" style="width:1200px; display: block;">
+            <div id="toggleBP" style="width:1200px; display:block;">
 
             {% block table1a %}
             {{ tablegobp }}
@@ -306,12 +274,10 @@ class Templater(object):
 
         if mf is not None:
             mf_info = '''
-            <span style="font-size:16px; font-weight: bold;">
-            Molecular Function
-            </span>
+            <span class="secthead">Molecular Function</span>
 
             <a id="displayMF" href="javascript:toggle('MF');">show</a></br>
-            <div id="toggleMF" style="width:1200px; display: none;">
+            <div id="toggleMF" class="collapsedDiv">
 
             {% block table1b %}
             {{ tablegomf }}
@@ -330,12 +296,10 @@ class Templater(object):
 
         if cc is not None:
             cc_info = '''
-            <span style="font-size:16px; font-weight: bold;">
-            Cellular Component
-            </span>
+            <span class="secthead">Cellular Component</span>
 
             <a id="displayCC" href="javascript:toggle('CC');">show</a></br>
-            <div id="toggleCC" style="width:1200px; display: none;">
+            <div id="toggleCC" class="collapsedDiv">
 
             {% block table1c %}
             {{ tablegocc }}
@@ -355,9 +319,7 @@ class Templater(object):
 
         if kegg is not None:
             kegg_info = '''
-            <span style="font-size:20px; font-weight: bold;">
-            KEGG pathways enrichment
-            </span>
+            <span class="secthead">KEGG pathways enrichment</span>
             {% block table2 %}
             {{ tablekegg }}
             {% endblock %}
@@ -422,7 +384,7 @@ class Templater(object):
     def process_title(self):
 
         """
-        NOTE: placeholder!
+        NOTE: currently a passthrough placeholder!
         TODO: Refine this method...
         """
 
@@ -527,17 +489,17 @@ class Templater(object):
 
         <br/>
 
-            <span style="font-size:20px; font-weight: bold;">
+            <span class="secthead">
                 Genes/transcripts ({{ len1 }}/{{ total }})</span>
 
         <a id="displayList" href="javascript:toggle('List');">show</a>
 
-        <div id="toggleList" style="width:1200px; display: none;">
-            <table dir="ltr" width="1200" border="1">
+        <div id="toggleList" class="collapsedDiv">
+            <table class="genedesc">
             <thead>
                 <tr>
                     <th scope="col">Identifier</th>
-                    <th scope="col">Descriptor</th>    
+                    <th scope="col">Descriptor</th>
                 </tr>
             </thead>
             <tbody>
@@ -551,7 +513,7 @@ class Templater(object):
                         {{ genedata[id][0].strip() }}
                         </td>
                     </tr>
-                    {% endif %}                    
+                    {% endif %}
                 {% endfor %}
                 <br/>
 
@@ -566,7 +528,7 @@ class Templater(object):
         <p>
         <a id="displayBastards" href="javascript:toggle('Bastards');">show</a>
 
-        <div id="toggleBastards" style="width:1200px; display: none;">
+        <div id="toggleBastards" class="collapsedDiv">
         {% for id in extra %}
             '''+self.link2+'''
             {% if not loop.last %}
@@ -579,7 +541,7 @@ class Templater(object):
 
 
         # DIRTY HACK
-
+        # ---------------------------------------------------------------------
         naughty = []
         stripped = {}
 
@@ -592,11 +554,9 @@ class Templater(object):
 
         lenstrp = len(stripped)
         lennaut = len(naughty)
+        # ---------------------------------------------------------------------
 
-        # DEBUG
-        # print len(self.annots)
-        # print lenstrp
-        # print lennaut
+
 
 
         if len(self.annots) > 0:
@@ -608,6 +568,7 @@ class Templater(object):
         else:
             table = Template("").render()
             print "uh oh!"
+            print "Something went wrong generating the gene list table!"
 
         return table
 
