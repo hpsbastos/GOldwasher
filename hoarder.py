@@ -54,7 +54,8 @@ class Templater(object):
                                           type="text/css" />
           <link href="support/tab-content/tabcontent.css" 
                                           rel="stylesheet" type="text/css" />
-          <link href="support/jquery-ui.css" rel="stylesheet" type="text/css"/>
+          <link href="support/jquery/jquery-ui.css" 
+                                          rel="stylesheet" type="text/css"/>
         '''
 
 
@@ -75,17 +76,17 @@ class Templater(object):
           <script  src="support/svg-pan-zoom/svg-pan-zoom.js" 
           type="text/javascript"></script>
 
-          <script src="support/jquery-1.10.2.js" type="text/javascript"></script>
-          <script src="support/jquery-ui.js" type="text/javascript" ></script>
+          <script src="support/jquery/jquery-1.10.2.js" type="text/javascript">
+          </script>
+          <script src="support/jquery/jquery-ui.js" type="text/javascript" >
+          </script>
 
            '''
 
-          # TODO: add switch to choose from "local" and "web" version
-          # <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-          # <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
 
-    # ----------------------------------------------------------------------------
+
+    # --------------------------------------------------------------------------
 
 
         if plus is not None:
