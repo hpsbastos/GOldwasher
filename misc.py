@@ -61,30 +61,26 @@ class Slicer(object):
 
 
 
-    def writeoutAdditionalAnnotation(self, directory, out, readFile):
+    def writeoutAdditionalAnnotation(self, inpath, outpath):
 
         """
         Creates new copy of file with added annotations provided
         via mapping dictionary.
         """
 
-        OUTname = os.path.join(directory, out, 
-                               os.path.splitext(readFile)[0]+".tsv")
+        with open(inpath, "r") as fh:
+            lines = fh.readlines()
 
-        IN = open(os.path.join(directory, readFile), "r")
-        lines = IN.readlines()
-        IN.close()
-
-        OUT = open(OUTname, "w")
+        out = open(outpath, "w")
         
         for line in lines:
             frags = line.split("\t")
             try:
-                OUT.write(line.strip('\n')+"\t"+
+                out.write(line.strip('\n')+"\t"+
                             self.descmap[frags[0].strip()]+"\n")
             except:
-                OUT.write(line.strip('\n')+"\t\n")
-        OUT.close()
+                out.write(line.strip('\n')+"\t\n")
+        out.close()
 
 
 

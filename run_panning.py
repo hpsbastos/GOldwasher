@@ -8,27 +8,155 @@ from datetime import datetime as dt
 import hoarder, oboe, misc, enricher
 
 
+def set_or_default(basedir, var, default):
+
+    if var:
+        out = var
+    else:
+        out = os.path.join(basedir, default)
+        print out
+    create_dir(out)
+
+    return out
+
 def create_dir(dirpath):
 
-    # if not exists, create folder to save enrichment results
+    # if not existant already, create folder to save enrichment results
     try: 
         os.makedirs(dirpath)
     except OSError:
         if not os.path.isdir(dirpath):
             raise
 
+
+def list_dir(directory, path=False):
+
+    files = [f for f in os.listdir(directory) 
+                     if os.path.isfile(os.path.join(directory, f))]
+
+    if path:
+        files = [os.path.join(directory, x) for x in files]
+
+    return files
+
+# -----------------------------------------------------------------------------
+
+def annotate(inputdir, outdir):
+
+    path = set_or_default(inputdir, outdir, 'annotated')
+    files = list_dir(inputdir)
+
+    for f in files:
+        infile = os.path.join(inputdir, f)
+        outfile = os.path.join(path, 
+                           os.path.splitext(f)[0]+".tsv")
+
+        M.writeoutAdditionalAnnotation(infile, outfile)
+
+    return path
+
+
+def enrich(inputdir, gmap, alpha):
+
+    targets = list_dir(inputdir, True)
+
+    BP = enricher.GOrich(gmap, "BP", alpha)
+    MF = enricher.GOrich(gmap, "MF", alpha)
+    CC = enricher.GOrich(gmap, "CC", alpha)
+
+    for t in targets:
+        BP.perform_go_enrichment(t)
+        MF.perform_go_enrichment(t)
+        CC.perform_go_enrichment(t)
+
+
+def dotsvg(inputdir, outdir, alpha):
+
+    path = set_or_default(inputdir, outdir, 'svg')
+    X = oboe.OBOe(obopath)
+
+    # target orthologonal ontologies
+    aspects = ["BP", "MF", "CC"]
+
+    for a in aspects:
+        targetdir = os.path.join(inputdir, "goenrich", a)
+        targets = os.listdir(targetdir)
+
+        for t in targets:
+            if t.endswith(".tsv"):
+                target = os.path.join(inputdir, "goenrich", a, t)
+                name = os.path.splitext(target)[0]+"_"+a
+
+            enrich_df = X.read_enrichment_tsv(target)
+            goes = X.extract_go_terms(enrich_df, alpha)
+
+            if goes != False:
+                try:
+                    ntx = X.create_ntx_graph(goes)
+                    nodes = X.ntx_nodes(ntx) 
+                    edges, root = X.get_directed_edges(nodes)
+                    dag = X.create_basic_dag(edges)
+
+                    dot = X.generate_basic_dot(dag)
+                    dotname = X.enhance_dot(name, nodes, dot, enrich_df, 
+                                            alpha, root)
+
+                    X.export_dag_as(dotname, "svg")
+                    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+                    shutil.copy(os.path.splitext(dotname)[0]+".svg", path)
+                except:
+                    print target
+                    print goes
+                    print "Something failed with the graph making!"
+
+    return path
+
 # =============================================================================
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser()
+
+    parser = argparse.ArgumentParser(conflict_handler='resolve')
+    subparsers = parser.add_subparsers(dest='command')
+
 
     parser.add_argument('-c', '--config',
                                help="""Indicate an INI file with the variables
                                        relevant for the current GO reports""", 
                                action='store', required=True)
-    parser.add_argument('-i', '--inputfolder',  help='Indicate the workfolder',
+    parser.add_argument('-i', '--inputdir',  help='Indicate the workfolder',
                          action='store', required=True)
+
+
+
+    parser_A = subparsers.add_parser('SPLIT', help='''Splits baySeq results
+                    files into up and down differentially expressed subset 
+                    files. Applicable only for 2-group/pairwise datasets.''')
+    parser_A.add_argument('-o', '--outdir', action='store')
+
+
+    parser_B = subparsers.add_parser('ANNOT', help='''Annotates gene/transcript
+                    lists with descriptors found on a user-supplied source file.
+                                                                ''')
+    parser_B.add_argument('-o', '--outdir', action='store')
+
+
+    parser_C = subparsers.add_parser('ENRICH', help='''Runs input genes lists on
+                    topGO R package and retrieves the enrichment results.''')
+
+
+
+    parser_D = subparsers.add_parser('DAG', help='''Produces GO annotation DAGs
+                    svg/dot files from topGO enrichment result files.''')
+    parser_D.add_argument('-o', '--outdir', action='store')
+
+
+    parser_E = subparsers.add_parser('REPORT', help='''Runs the pipeline from
+        input gene/transcript list up to the generation of a final GO enrichment
+        html report file per list.''')
+    parser_E.add_argument('-o', '--outdir', action='store')
+
+
 
     args = parser.parse_args()
 
@@ -43,170 +171,99 @@ if __name__ == "__main__":
     alpha = float(config['vars']['alpha'])
     org = config['vars']['organism']
 
-    #basedir = os.path.expanduser( os.path.join('~', config['vars']['basedir']) )
-    basedir = args.inputfolder
-
-    splitsuffix = config['vars']['splitsuffix']
-    enrichsuffix = config['vars']['enrichsuffix']
-    reportsuffix = config['vars']['savereports']
-
-    g_map = os.path.expanduser( os.path.join('~', config['vars']['g_map']) )
-    annotDir = os.path.expanduser( 
-                        os.path.join('~', config['vars']['annotmapbasedir']) ) 
-    descriptionFile = config['vars']['descriptionFile']
 
 
-    obopath = os.path.expanduser( os.path.join('~', config['vars']['obopath']) )
+    basedir = args.inputdir
 
 
-# ===================================
+    g_map = config['sources']['g_map']
+    functional_desc_file = config['sources']['functionalDesc']
+    obopath = config['sources']['obofile']
 
 
-    splitslocation = os.path.join(basedir, splitsuffix)
-    annotedlocation = os.path.join(splitslocation, enrichsuffix)
+# =============================================================================
 
 
-
-    M = misc.Slicer(os.path.join(annotDir, descriptionFile))
-
-
-    # Do the (up|down) splits
-    # ------------------------------------------------------------------------
-#     print "Spliting into Up- and Down- regulated DE transcripts..."
-
-#     listing = os.listdir(basedir)
-#     files = [x for x in listing if os.path.isfile(os.path.join(basedir, x))]
-
-#     splitslocation = os.path.join(basedir, splitsuffix)
-#     create_dir(splitslocation)
-
-#     for f in files:
-# #        print f
-#         M.split_up_down_results(os.path.join(basedir, f), splitslocation)
-
-
-
-    splitslocation = basedir
-
-    # Add functional descriptors
+    # Segregate (up|down) ids from baySeq's 2-group experiments results files 
     # -------------------------------------------------------------------------
-    print "Annotating split lists..."
+    if args.command == 'SPLIT':
+        print "Spliting into Up- and Down- regulated DE transcripts..."
 
-    annotedlocation = os.path.join(splitslocation, enrichsuffix)
-    create_dir(annotedlocation)
+        M = misc.Slicer(functional_desc_file)
+        path = set_or_default(basedir, args.outdir, 'splits')
+        files = list_dir(basedir)
 
-
-    files = [f for f in os.listdir(splitslocation) 
-             if os.path.isfile(os.path.join(splitslocation, f))]
-
-    for f in files:
-        M.writeoutAdditionalAnnotation(splitslocation, enrichsuffix, f)
+        for f in files:
+            M.split_up_down_results(os.path.join(basedir, f), path)
 
 
-
-
-
-    # Perform GO enrichment
+    # Add functional descriptors to gene lists
     # -------------------------------------------------------------------------
-    print "Computing GO term enrichment..."
+    if args.command == 'ANNOT':
+        print "Annotating gene lists..."
 
-    targets = [os.path.join(annotedlocation, x) 
-               for x in os.listdir(annotedlocation) if 
-               os.path.isfile(os.path.join(annotedlocation, x))]
+        M = misc.Slicer(functional_desc_file)
+        path = annotate(basedir, args.outdir)
 
-    BP = enricher.GOrich(g_map, "BP", alpha)
-    MF = enricher.GOrich(g_map, "MF", alpha)
-    CC = enricher.GOrich(g_map, "CC", alpha)
 
-    for t in targets:
-        BP.perform_go_enrichment(t)
-        MF.perform_go_enrichment(t)
-        CC.perform_go_enrichment(t)
-
+    # Perform GO enrichment (using topGO w/ fisherElim algorithm)
     # -------------------------------------------------------------------------
+    if args.command == 'ENRICH':
+        print "Computing GO term enrichment..."
 
-    reportsout = os.path.join(basedir, reportsuffix)
-    create_dir(reportsout)
-    svgout = os.path.join(reportsout, "svg")
-    create_dir(svgout)
-
+        enrich(basedir, g_map, alpha)
 
 
-
-
-
-    # Generate GO graphs
+    # Generate dot/svg GO graphs (using Graphviz package)
     # -------------------------------------------------------------------------
-    print "Generating GO graphs..."
+    if args.command == 'DAG':
+        print "Generating GO graphs..."
 
-
-    X = oboe.OBOe(obopath)
-
-
-
-
-    # target orthologonal ontologies
-    aspects = ["BP", "MF", "CC"]
-
-    # -------------------------------------------------------------------------
-
-    for a in aspects:
-        targetdir = os.path.join(annotedlocation, "goenrich", a)
-        targets = os.listdir(targetdir)
-        for t in targets:
-            if t.endswith(".tsv"):
-                target = os.path.join(annotedlocation, "goenrich", a, t)
-                name = os.path.splitext(target)[0]+"_"+a
-
-    # -------------------------------------------------------------------------
-
-            enrich_df = X.read_enrichment_tsv(target)
-            goes = X.extract_go_terms(enrich_df, alpha)
-
-            if goes != False:
-                try:
-                    ntx = X.create_ntx_graph(goes)
-                    nodes = X.ntx_nodes(ntx) 
-                    edges, root = X.get_directed_edges(nodes)
-                    dag = X.create_basic_dag(edges)
-
-                    dot = X.generate_basic_dot(dag)
-                    dotname = X.enhance_dot(name, nodes, dot, enrich_df, alpha,
-                                            root)
-
-                    X.export_dag_as(dotname, "svg")
-                    shutil.copy(os.path.splitext(dotname)[0]+".svg", svgout)
-                except:
-                    print target
-                    print goes
-                    print "Something failed with the graph making!"
+        path = dotsvg(basedir, args.outdir, alpha)
 
 
 
-    print "Generating final reports..."
-    # ------------------------------------------------------------------------
+    if args.command == 'REPORT':
 
-    listing = os.listdir(annotedlocation)
-    files = [x for x in listing if 
-                    os.path.isfile(os.path.join(annotedlocation, x))]
+        M = misc.Slicer(functional_desc_file)
 
-    jannots = {}
-    for f in files:
-        annotDict = M.read_annotation_file(annotedlocation, f)
-        jannots["genes"] = json.dumps(annotDict.keys())
+        print "annotating..."
+        path = annotate(basedir, args.outdir)
 
-        name = os.path.splitext(f)[0]
-        scaffold = hoarder.Templater(name, annotDict, org)
+        print "computing GO term enrichment..."
+        enrich(path, g_map, alpha)
 
-        # gets results from topGO/GOstats (filtered by p-value)
-        enriched = M.process_enrichment_values(annotedlocation, 
-                                        os.path.splitext(f)[0], alpha)
-        # adds "genes" list to the dictionary as new key value
-        enriched.update(jannots)
+        print "generating GO graphs..."
 
-        html = scaffold.render_main_page(enriched)
+        reportsout = os.path.join(path, 'reports')
+        create_dir(reportsout)
+        svgout = os.path.join(reportsout, 'svg')
+        create_dir(svgout)
 
-        # Write out the file...
-        filename = os.path.join(reportsout, name+".html")
-        with codecs.open(filename, encoding='utf-8', mode="w") as f:
-            f.write(html)
+        svgpath = dotsvg(path, svgout, alpha)
+
+
+        print "assembling final reports..."
+
+        files = list_dir(path)
+
+        jannots = {}
+        for f in files:
+            annotDict = M.read_annotation_file(path, f)
+            jannots["genes"] = json.dumps(annotDict.keys())
+
+            name = os.path.splitext(f)[0]
+            scaffold = hoarder.Templater(name, annotDict, org)
+
+            # gets results from topGO/GOstats (filtered by p-value)
+            enriched = M.process_enrichment_values(path, 
+                                            os.path.splitext(f)[0], alpha)
+            # adds "genes" list to the dictionary as new key value
+            enriched.update(jannots)
+
+            html = scaffold.render_main_page(enriched)
+
+            # Write out the file...
+            filename = os.path.join(reportsout, name+".html")
+            with codecs.open(filename, encoding='utf-8', mode="w") as f:
+                f.write(html)
