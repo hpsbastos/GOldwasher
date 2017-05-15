@@ -30,7 +30,6 @@ class KEGGer(object):
         GOstats = importr('GOstats')
         GSEABase = importr('GSEABase')
 
-
     def perform_kegg_enrichment(self, targetspath):
 
         """
@@ -85,14 +84,14 @@ class GOrich(object):
 
     # NOTE: alpha parameter is not currently been used, here.
     #       Check possibily of using it as a filter later.
-    def __init__(self, gomap, ontology, alpha):
+    def __init__(self, gomap, ontology='BP', alpha=0.01):
 
         self.mappings = gomap
         self.ontology = ontology
         self.alpha = alpha
 
         topGO = importr('topGO')
-
+        JSONlite = importr('jsonlite')
 
     def perform_go_enrichment(self, targetspath):
 
@@ -106,9 +105,7 @@ class GOrich(object):
         robjects.globalenv["alpha"] = self.alpha
 
         read_target_group_of_interest(targetspath)
-
         handle_result_saving(targetspath, "goenrich/"+self.ontology)
-
 
         robjects.r('''
         capture.output(id2go <- readMappings(file = mappings), file="/dev/null")
@@ -121,7 +118,6 @@ class GOrich(object):
         success = FALSE
         ''')
 
-
         robjects.r('''
                       tryCatch(
                       {
@@ -130,10 +126,8 @@ class GOrich(object):
                         allGenes = interestingGenes, annot = annFUN.gene2GO, 
                         gene2GO = id2go)
                       , file="/dev/null" )
-
                       success <- TRUE
                       }, 
-
                       error = function(e){ 
                                 print( paste(basename, 
                                 "failed to have any GO", ontology, 
@@ -142,7 +136,6 @@ class GOrich(object):
                                 }
                       )
                    ''')
-
 
         robjects.r('''
                 if (success == TRUE){
@@ -167,6 +160,70 @@ class GOrich(object):
                    ''')
 
 
+    def extract_full_annot_mapping(self, genelist, pathout):
+
+        """
+        Extracts list of GO term annotations (ancestors included)
+        into a psedo-json (.js w/ 'annotmap' var file.
+        """
+
+        robjects.globalenv["mappings"] = self.mappings
+
+        robjects.globalenv["targetset"] = robjects.StrVector(genelist)
+        robjects.globalenv["pathout"] = pathout
+
+
+        robjects.r('''
+        capture.output(id2go <- readMappings(file = mappings), file="/dev/null")
+        transcriptNames <- names(id2go)
+
+        interestingGenes <- factor(as.integer( 
+                        transcriptNames %in% as.character(unlist(targetset)) ) )
+        names(interestingGenes) <- transcriptNames
+
+        success = FALSE
+        onts <- c("BP", "MF", "CC")
+        comboList <- list()
+        ''')
+
+        robjects.r('''
+                      tryCatch(
+                      {
+                      for (ont in onts){
+                          capture.output(
+                            GOdata <- new("topGOdata", ontology = ont,
+                            allGenes = interestingGenes, annot = annFUN.gene2GO, 
+                            gene2GO = id2go)
+                          , file="/dev/null" )
+
+                          go2ids <- genesInTerm(GOdata, usedGO(GOdata))
+                          for (go in names(go2ids)){
+                              comboList[[go]] <- go2ids[[go]]
+                          }
+                        }
+                      success <- TRUE
+                      }, 
+
+                      error = function(e){ 
+                                print( paste(basename, 
+                                "failed to have any GO", ont, 
+                                "terms mapped to its members!") )
+                                success <- FALSE 
+                                }
+                      )
+                   ''')
+
+        robjects.r('''
+                if (success == TRUE){
+
+                    jsonout = toJSON(comboList, pretty = TRUE)
+
+                    fh <- file(pathout)
+                    writeLines(paste("var annotmap = ", jsonout), fh)
+                    close(fh)
+
+                }
+                   ''')
 
 
 # accessory py2r helpers
@@ -187,7 +244,6 @@ def read_target_group_of_interest(targetspath):
             genes.append(token[0].strip())
 
     robjects.globalenv["targetset"] = robjects.StrVector(genes)
-
 
 
 def handle_result_saving(targetspath, enrich):

@@ -1,0 +1,76 @@
+
+body {
+        background: white;
+        color: black }
+
+
+a {
+  transition: color .2s;
+  color: #197bc1;
+}
+
+a:link    { color: #197bc1; text-decoration: none; }
+a:visited { color: #197bc1; }
+a:hover   { color: #19b2c1; }
+a:active  { color: #195cc1; }
+
+
+.ui-widget-content a {
+  transition: color .2s;
+  color: #197bc1;
+}
+
+.ui-widget-content a:link    { color: #197bc1; text-decoration: none; }
+.ui-widget-content a:visited { color: #197bc1; }
+.ui-widget-content a:hover   { color: #19b2c1; }
+.ui-widget-content a:active  { color: #195cc1; }
+
+
+
+.secthead {
+        font-size: 20px;
+        font-weight: bold;
+}
+
+.collapsedDiv {
+        width: 1200px;
+        display: none;
+}
+
+#toggleBastards {
+        width: 1180px;
+        border:1px solid black;
+        border-radius: 5px;
+        padding: 10px;
+}
+
+
+table {
+        width: 1200px;
+        border:1px solid black;
+        border-radius: 5px;
+        border-collapse: separate;
+}
+
+table.sortable 
+  th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after { 
+        content: " \25B4\25BE"
+}
+
+tr:nth-child(even) {background: #dedfe0}
+tr:nth-child(odd) {background: #FFF}
+
+table th {
+        border:1px solid black;
+        border-radius: 5px;
+        padding: 2px;
+}
+
+table td {
+  border: 0;
+}
+
+.genedesc {
+        text-align: left;
+        border:1px solid black;
+}

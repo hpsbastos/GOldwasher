@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys, os, argparse, shutil, codecs, json
+import sys, os, argparse, shutil, codecs, json, errno
 from configobj import ConfigObj
 from datetime import datetime as dt
 
@@ -14,7 +14,6 @@ def set_or_default(basedir, var, default):
         out = var
     else:
         out = os.path.join(basedir, default)
-        print out
     create_dir(out)
 
     return out
@@ -28,7 +27,6 @@ def create_dir(dirpath):
         if not os.path.isdir(dirpath):
             raise
 
-
 def list_dir(directory, path=False):
 
     files = [f for f in os.listdir(directory) 
@@ -38,6 +36,18 @@ def list_dir(directory, path=False):
         files = [os.path.join(directory, x) for x in files]
 
     return files
+
+def copy(src, dest):
+    try:
+        shutil.copytree(src, dest)
+    except OSError as e:
+        # Source not a directory? BZZZZ
+        if e.errno == errno.ENOTDIR:
+            shutil.copy(src, dest)
+        else:
+            print('Directory not copied. Error: %s' % e)
+
+
 
 # -----------------------------------------------------------------------------
 
@@ -102,7 +112,6 @@ def dotsvg(inputdir, outdir, alpha):
                                             alpha, root)
 
                     X.export_dag_as(dotname, "svg")
-                    # # # # # # # # # # # # # # # # # # # # # # # # # # # #
                     shutil.copy(os.path.splitext(dotname)[0]+".svg", path)
                 except:
                     print target
@@ -156,7 +165,7 @@ if __name__ == "__main__":
         html report file per list.''')
     parser_E.add_argument('-o', '--outdir', action='store')
 
-
+# -----------------------------------------------------------------------------
 
     args = parser.parse_args()
 
@@ -171,15 +180,11 @@ if __name__ == "__main__":
     alpha = float(config['vars']['alpha'])
     org = config['vars']['organism']
 
-
-
     basedir = args.inputdir
-
 
     g_map = config['sources']['g_map']
     functional_desc_file = config['sources']['functionalDesc']
     obopath = config['sources']['obofile']
-
 
 # =============================================================================
 
@@ -245,6 +250,12 @@ if __name__ == "__main__":
 
         print "assembling final reports..."
 
+        support = os.path.join(reportsout, 'support')
+        try:
+            shutil.copytree('libraries/support', support)
+        except OSError:
+            pass
+
         files = list_dir(path)
 
         jannots = {}
@@ -267,3 +278,18 @@ if __name__ == "__main__":
             filename = os.path.join(reportsout, name+".html")
             with codecs.open(filename, encoding='utf-8', mode="w") as f:
                 f.write(html)
+
+# =============================================================================
+
+        M.generate_support_js_file(M.descmap, support, 
+                                                'descriptions.js', 'descmap')
+
+        annotmap = os.path.abspath(os.path.join(support, 'annotations.js'))
+        E = enricher.GOrich(g_map)
+        E.extract_full_annot_mapping(M.descmap.keys(), annotmap)
+
+        print 'done!'
+
+# =============================================================================
+
+

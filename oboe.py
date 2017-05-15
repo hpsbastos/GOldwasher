@@ -35,7 +35,6 @@ class OBOe(object):
         self.ontology = self.read_obo()
 
 
-
     def read_obo(self):
 
         ont = OBOOntology(self.obofile)
@@ -49,7 +48,6 @@ class OBOe(object):
     def ntx_nodes(self, ntxgraph):
 
         return ntxgraph.nodes();
-
 
 
     def get_directed_edges(self, termlist):
@@ -87,7 +85,6 @@ class OBOe(object):
         return dag
 
 
-
     def generate_basic_dot(self, dag):
 
         """
@@ -106,7 +103,6 @@ class OBOe(object):
             dot.append(line.strip())
 
         return dot
-
 
 
     def read_enrichment_tsv(self, filepath):
@@ -194,8 +190,6 @@ class OBOe(object):
         return temp.name
 
 
-
-
     def export_dag_as(self, dotfile, filetype):
 
         """
@@ -215,7 +209,6 @@ class OBOe(object):
             sys.exit()
 
         outfile = os.path.splitext(dotfile)[0]+outdef[0]
-
         with open(outfile,'w') as s_out:
             subprocess.call(['dot', outdef[1], dotfile], stdout=s_out)
 
@@ -277,7 +270,8 @@ class OBOe(object):
 
         # hard-coded range
         # TODO: improve this, possibly make it customizable
-        #       or make a few presets available
+        #       or make a few sensible presets available
+        # pall_1 = (170, 240)
         max_colour = 240
         min_colour = 170
 

@@ -83,11 +83,7 @@ class Templater(object):
 
            '''
 
-
-
-
     # --------------------------------------------------------------------------
-
 
         if plus is not None:
 
@@ -114,14 +110,11 @@ class Templater(object):
             jgenes = None
 
 
-
         # TODO: testing...
         if jgenes is not None:
 
-
             bigjson = '''
             <script type="text/javascript">
-
 
             function toggle(target) {
                 var ele = document.getElementById("toggle"+target);
@@ -135,7 +128,6 @@ class Templater(object):
                     text.innerHTML = "hide";
                 }
             } 
-
 
 
             $(function() {
@@ -160,7 +152,6 @@ class Templater(object):
                           if(mutations[i].addedNodes[j].id == selector) {
 
                                     displayDialog(linkID);
-
                           }
                         }
                       }
@@ -171,8 +162,6 @@ class Templater(object):
                     obs.observe($("body").get(0), {
                       childList: true
                     });
-
-
 
 
                     var $div = $("<div>", {id: selector, class: "dialog", 
@@ -193,7 +182,6 @@ class Templater(object):
             }); // closes the function...
 
 
-
             function displayDialog(targetDiv) {
 
               var name = document.getElementById( targetDiv ).name
@@ -204,17 +192,14 @@ class Templater(object):
               });
             } 
 
-
             function isInArray(value, array) {
               return array.indexOf(value) > -1;
             }
-
 
             function get_desc(id){
                 var desc = descmap[id]
                 return desc
             }
-
 
             function get_genes(id){ 
               var slice = annotmap[id];
@@ -372,16 +357,6 @@ class Templater(object):
 
 
 
-
-
-
-
-
-
-
-
-
-
     def process_title(self):
 
         """
@@ -390,7 +365,6 @@ class Templater(object):
         """
 
         return '<h2>'+self.title+'</h2>'
-
 
 
 
@@ -472,7 +446,6 @@ class Templater(object):
 
 
 
-
     # make Jinja2 table template for gene/transcript annotation data/list
     # NOTE: Currently all available annotations per gene/transcript are
     # dumped into a single cell. TODO: ponder the best way to improve that!
@@ -523,8 +496,6 @@ class Templater(object):
 
         </div>
 
-
-
         <h3> No description ({{ len2 }})</h3>
         <p>
         <a id="displayBastards" href="javascript:toggle('Bastards');">show</a>
@@ -559,7 +530,6 @@ class Templater(object):
 
 
 
-
         if len(self.annots) > 0:
             table = tablegene.render(genedata=stripped, 
                                      extra=naughty, 
@@ -572,8 +542,6 @@ class Templater(object):
             print "Something went wrong generating the gene list table!"
 
         return table
-
-
 
 
 
@@ -682,7 +650,6 @@ class Templater(object):
         out = table.replace('<th>GO.ID</th>', 
                             '<th class="sorttable_nosort">GO.ID</th>')
         return out
-
 
 
     def process_hidden_keys(self, table):
