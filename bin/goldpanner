@@ -1,11 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import sys, os, argparse, shutil, codecs, json, errno
 from configobj import ConfigObj
 from datetime import datetime as dt
 
-import hoarder, oboe, misc, enricher
+from GOldwasher import hoarder, oboe, misc, enricher
 
 
 def set_or_default(basedir, var, default):
@@ -186,6 +186,12 @@ if __name__ == "__main__":
     functional_desc_file = config['sources']['functionalDesc']
     obopath = config['sources']['obofile']
 
+    try:
+        linkouts = config['sources']['linkinsets']
+    except:
+        linkouts = None
+
+
 # =============================================================================
 
 
@@ -264,7 +270,7 @@ if __name__ == "__main__":
             jannots["genes"] = json.dumps(annotDict.keys())
 
             name = os.path.splitext(f)[0]
-            scaffold = hoarder.Templater(name, annotDict, org)
+            scaffold = hoarder.Templater(name, annotDict, org, linkouts)
 
             # gets results from topGO/GOstats (filtered by p-value)
             enriched = M.process_enrichment_values(path, 
@@ -291,5 +297,3 @@ if __name__ == "__main__":
         print 'done!'
 
 # =============================================================================
-
-

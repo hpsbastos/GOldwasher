@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
-import re, json
+import re, json, pkg_resources
 
 from jinja2 import Template
 from decimal import *
@@ -13,7 +13,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 class Templater(object):
 
-    def __init__(self, title, annot, org):
+    def __init__(self, title, annot, org, links=None):
 
         self.title = title
         self.annots = annot
@@ -22,8 +22,13 @@ class Templater(object):
                          'mf': 'svg/'+title+'_enrichment_MF.svg', 
                          'cc': 'svg/'+title+'_enrichment_CC.svg' }
 
-        with open("organisms.json", "r") as f:
-            inserts = json.load(f)
+        if links == None:
+            inserts = json.loads(pkg_resources.resource_string('GOldwasher', 
+                                                            '/organisms.json'))
+
+        else:
+            with open(links, "r") as f:
+                inserts = json.load(f)
 
         try:
             self.link1 = inserts[org]['insertlink1']
@@ -83,7 +88,7 @@ class Templater(object):
 
            '''
 
-    # --------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
 
         if plus is not None:
 
@@ -232,7 +237,7 @@ class Templater(object):
 
 
         # BIOLOGICAL PROCESS table
-        # ======================================================================
+        # =====================================================================
 
         if bp is not None:
             bp_info = '''
@@ -256,7 +261,7 @@ class Templater(object):
             bp_info = ""
 
         # MOLECULAR FUCNTION table
-        # ======================================================================
+        # =====================================================================
 
         if mf is not None:
             mf_info = '''
@@ -278,7 +283,7 @@ class Templater(object):
 
 
         # CELLULAR COMPONENT table
-        # ======================================================================
+        # =====================================================================
 
         if cc is not None:
             cc_info = '''
@@ -301,7 +306,7 @@ class Templater(object):
 
 
         # KEGG PATHWAYS table
-        # ======================================================================
+        # =====================================================================
 
         if kegg is not None:
             kegg_info = '''
@@ -314,7 +319,7 @@ class Templater(object):
         else:
             kegg_info = ""
 
-    # --------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
 
         template = Template('''<!DOCTYPE html>
         <html lang="en">
@@ -350,7 +355,7 @@ class Templater(object):
                                tablegobp = t_bp,
                                tablegomf = t_mf,
                                tablegocc = t_cc,
-                               tablekegg = t_kegg,                           
+                               tablekegg = t_kegg,
                                annots = self.render_gene_table(),
                                )
         return html
