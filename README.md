@@ -16,7 +16,7 @@ several gene lists.
 
 ----------
 
-**Current release:** *0.2.1 (alpha)*
+**Current release:** *0.2.2 (alpha)*
 
 Provides basic functionality and basic documentation. Methods and functions 
 are working if the input does not deviate from expected (none to little input 
@@ -37,7 +37,7 @@ sanitization) but they haven't been extensively tested.
 Installation
 ------------
 
-    pip install GOldwasher-0.2.1.tar.gz
+    pip install GOldwasher-0.2.2.tar.gz
 
 or
 
