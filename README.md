@@ -37,7 +37,7 @@ sanitization) but they haven't been extensively tested.
 Installation
 ------------
 
-    pip install GOldwasher-0.2.2.tar.gz
+    pip install GOldwasher-0.2.3.tar.gz
 
 or
 
@@ -67,7 +67,7 @@ it can conveniently be used from its command tool 'goldpanner'
 
 
     goldpanner [-h] -c CONFIG -i INPUTDIR
-                  {SPLIT,ANNOT,ENRICH,DAG,REPORT}
+                  {ANNOT,ENRICH,DAG,REPORT}
  e.g.:
 
     goldpanner -c settings.ini -i lists/ REPORT
@@ -123,8 +123,6 @@ ini file with general settings using the following structure:
 
   **Commands**:
   ---
-
-    SPLIT - splits baySeq result files (pairwise conditions) into up and down-regulated lists.
 
     ANNOT - annotates identifiers lists with respective available functional descriptors.
 

@@ -138,19 +138,13 @@ if __name__ == "__main__":
 
 
 
-    parser_A = subparsers.add_parser('SPLIT', help='''Splits baySeq results
-                    files into up and down differentially expressed subset 
-                    files. Applicable only for 2-group/pairwise datasets.''')
+    parser_A = subparsers.add_parser('ANNOT', help='''Annotates gene/transcript
+                    lists with descriptors found on a user-supplied source file.
+                                                                ''')
     parser_A.add_argument('-o', '--outdir', action='store')
 
 
-    parser_B = subparsers.add_parser('ANNOT', help='''Annotates gene/transcript
-                    lists with descriptors found on a user-supplied source file.
-                                                                ''')
-    parser_B.add_argument('-o', '--outdir', action='store')
-
-
-    parser_C = subparsers.add_parser('ENRICH', help='''Runs input genes lists on
+    parser_E = subparsers.add_parser('ENRICH', help='''Runs input genes lists on
                     topGO R package and retrieves the enrichment results.''')
 
 
@@ -160,10 +154,10 @@ if __name__ == "__main__":
     parser_D.add_argument('-o', '--outdir', action='store')
 
 
-    parser_E = subparsers.add_parser('REPORT', help='''Runs the pipeline from
+    parser_R = subparsers.add_parser('REPORT', help='''Runs the pipeline from
         input gene/transcript list up to the generation of a final GO enrichment
         html report file per list.''')
-    parser_E.add_argument('-o', '--outdir', action='store')
+    parser_R.add_argument('-o', '--outdir', action='store')
 
 # -----------------------------------------------------------------------------
 
@@ -193,19 +187,6 @@ if __name__ == "__main__":
 
 
 # =============================================================================
-
-
-    # Segregate (up|down) ids from baySeq's 2-group experiments results files 
-    # -------------------------------------------------------------------------
-    if args.command == 'SPLIT':
-        print "Spliting into Up- and Down- regulated DE transcripts..."
-
-        M = misc.Slicer(functional_desc_file)
-        path = set_or_default(basedir, args.outdir, 'splits')
-        files = list_dir(basedir)
-
-        for f in files:
-            M.split_up_down_results(os.path.join(basedir, f), path)
 
 
     # Add functional descriptors to gene lists
@@ -266,7 +247,7 @@ if __name__ == "__main__":
 
         jannots = {}
         for f in files:
-            annotDict = M.read_annotation_file(path, f)
+            annotDict = M.read_annotation_file(os.path.join(path,f))
             jannots["genes"] = json.dumps(annotDict.keys())
 
             name = os.path.splitext(f)[0]

@@ -1,0 +1,3 @@
+KEGGID	Pvalue	OddsRatio	ExpCount	Count	Size	Term
+00860	1.27736708003292e-08	14.8	1.7578125	12	27	Porphyrin and chlorophyll metabolism
+00630	0.0467417732493386	4.51914893617021	0.846354166666667	3	13	Glyoxylate and dicarboxylate metabolism

@@ -15,3 +15,4 @@
 /README.rst
 /MANIFEST.in
 /reinstall
+/.coverage

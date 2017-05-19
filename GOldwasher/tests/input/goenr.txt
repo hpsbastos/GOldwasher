@@ -1,0 +1,3 @@
+GO.ID	Term	Annotated	Significant	Expected	Rank in classicFisher	classicFisher	elimFisher
+GO:0016998	cell wall macromolecule catabolic proces...	1	1	0.01	1	0.0073	0.0073
+GO:0034755	iron ion transmembrane transport	1	1	0.01	2	0.0073	0.0073

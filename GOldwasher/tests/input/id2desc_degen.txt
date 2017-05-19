@@ -1,0 +1,3 @@
+Phatr3_Jdraft645.t1	Acetyl-coenzyme A synthetase
+Phatr3_EG01276.t1	
+Phatr3_Jdraft825.t1,Fructose-bisphosphate aldolase
