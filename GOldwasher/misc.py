@@ -55,7 +55,7 @@ class Slicer(object):
             with open(inpath, 'r') as fh:
                 lines = fh.readlines()
 
-            with open(outpath, 'w') as fh:
+            with open(outpath, 'w') as out:
                 for line in lines:
                     frags = line.split('\t')
                     try:
