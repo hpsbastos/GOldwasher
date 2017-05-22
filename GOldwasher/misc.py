@@ -12,17 +12,19 @@ class Slicer(object):
 
     def __init__(self, mapfile):
 
-        self.descmap = self.read_annotation_file(mapfile)
+        self.descmap = self.read_annotation_file(mapfile, False)
 
 
     # useful for simple 2 column 1-to-1 (key:value) annotation files
-    def read_annotation_file(self, f):
+    def read_annotation_file(self, f, list_=True):
 
         '''
         Reads and parses a tsv annotation file into 'TWO columns' split:
         identifier(key):annotations(values). -- all available annotations.
         Note: Expects _whitespace_, _comma_ or _semi-colon_ as separator.
         '''
+
+        # TODO: increment/add input sanitization
 
         annotDict = {}
         patt = re.compile('([^,;\s]+)[,;\t\v]+(.*)', re.IGNORECASE)
@@ -41,10 +43,14 @@ class Slicer(object):
             print 'Could not read file:', f
             raise
 
+        if list_ == False:
+            for key in annotDict:
+                annotDict[key] = ' '.join(annotDict[key])
+
         return annotDict
 
 
-    def writeoutAdditionalAnnotation(self, inpath, outpath):
+    def writeout_additional_annotation(self, inpath, outpath):
 
         '''
         Creates new copy of file with added annotations provided
@@ -59,10 +65,12 @@ class Slicer(object):
                 for line in lines:
                     frags = line.split('\t')
                     try:
+                        #print self.descmap[frags[0]]
                         out.write(line.strip('\n')+'\t'+
                                     self.descmap[frags[0].strip()]+'\n')
-                    except:
+                    except KeyError:
                         out.write(line.strip('\n')+'\t\n')
+                        raise
         except IOError as err:
             print 'Could not read/write file:', err.filename
             raise
@@ -150,3 +158,5 @@ class Slicer(object):
             except IOError:
                 print 'Could not read file:', f
                 raise
+
+        return outfile

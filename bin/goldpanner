@@ -61,7 +61,7 @@ def annotate(inputdir, outdir):
         outfile = os.path.join(path, 
                            os.path.splitext(f)[0]+".tsv")
 
-        M.writeoutAdditionalAnnotation(infile, outfile)
+        M.writeout_additional_annotation(infile, outfile)
 
     return path
 

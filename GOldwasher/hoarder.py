@@ -517,7 +517,7 @@ class Templater(object):
         ''')
 
 
-        # DIRTY HACK
+        # CHEEKY HACK
         # ---------------------------------------------------------------------
         naughty = []
         stripped = {}
