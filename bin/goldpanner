@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys, os, argparse, shutil, codecs, json, errno
+import sys, os, argparse, shutil, codecs, json, errno, pkg_resources
 from configobj import ConfigObj
 from datetime import datetime as dt
 
@@ -238,10 +238,12 @@ if __name__ == "__main__":
         print "assembling final reports..."
 
         support = os.path.join(reportsout, 'support')
+
+        libs = pkg_resources.resource_filename('GOldwasher','libraries/support')
         try:
-            shutil.copytree('libraries/support', support)
+            shutil.copytree(libs, support)
         except OSError:
-            pass
+            print "Support files not copied/already present!"
 
         files = list_dir(path)
 
@@ -273,7 +275,9 @@ if __name__ == "__main__":
 
         annotmap = os.path.abspath(os.path.join(support, 'annotations.js'))
         E = enricher.GOrich(g_map)
-        E.extract_full_annot_mapping(M.descmap.keys(), annotmap)
+        bunch = M.descmap.keys()[:-1] # need to remove one at least
+        E.extract_full_annot_mapping(bunch, annotmap)
+
 
         print 'done!'
 

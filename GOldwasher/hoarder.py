@@ -660,8 +660,8 @@ class Templater(object):
     def process_hidden_keys(self, table):
 
         """
-        Necessary trick to be able to
-        sort exponential numbers.
+        Necessary trick to be able to sort exponential
+        numbers with the sorttable library.
         """
 
         getcontext().prec = 100

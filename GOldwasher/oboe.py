@@ -3,7 +3,7 @@
 
 import networkx as nx
 import pandas as pd
-import os, math, subprocess, tempfile
+import os, math, subprocess, tempfile, misc
 
 from libraries.ontology import OBOOntology
 
@@ -107,7 +107,10 @@ class OBOe(object):
 
     def read_enrichment_tsv(self, filepath):
 
-        df = pd.read_csv(filepath, sep="\t")
+        df = pd.read_csv(filepath, sep="\t",
+                        converters={'elimFisher': 
+                            lambda x: misc.parse_ev(x)})
+        df[['elimFisher']] = df[['elimFisher']].apply(pd.to_numeric)
         return df
 
 

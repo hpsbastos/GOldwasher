@@ -126,7 +126,9 @@ class Slicer(object):
 
         try:
             if ont != 'KEGG Pathways':
-                df = pd.read_csv(tsvpath, sep='\t')
+                df = pd.read_csv(tsvpath, sep='\t',
+                    converters={'elimFisher': lambda x: parse_ev(x)})
+                df[['elimFisher']] = df[['elimFisher']].apply(pd.to_numeric)
             else:
                 df = pd.read_csv(tsvpath, sep='\t', 
                                     converters={'KEGGID': lambda x: str(x)})
@@ -160,3 +162,23 @@ class Slicer(object):
                 raise
 
         return outfile
+
+
+
+
+
+
+
+def parse_ev(val):
+
+    '''
+    Identifies and converts '< 1e-30' strings
+    into numeric convertable strings
+    '''
+
+    patt = re.compile('^<\s+(.+)')
+    m = patt.search(val)
+    if m:
+        return m.group(1)
+    else:
+        return val

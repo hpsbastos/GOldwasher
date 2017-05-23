@@ -5,7 +5,6 @@ import os
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 
-
 """
 Classes to interface in a limited way (presets) with 
 R's packages 'topGO' and 'GOstats' via rpy2.
@@ -187,41 +186,40 @@ class GOrich(object):
         ''')
 
         robjects.r('''
-                      tryCatch(
-                      {
-                      for (ont in onts){
-                          capture.output(
-                            GOdata <- new("topGOdata", ontology = ont,
-                            allGenes = interestingGenes, annot = annFUN.gene2GO, 
-                            gene2GO = id2go)
-                          , file="/dev/null" )
+                  tryCatch(
+                        {
+                        for (ont in onts){
+                            capture.output(
+                                GOdata <- new("topGOdata", ontology = ont,
+                                              allGenes = interestingGenes, 
+                                              annot = annFUN.gene2GO, 
+                                              gene2GO = id2go)
+                            , file="/dev/null" )
 
-                          go2ids <- genesInTerm(GOdata, usedGO(GOdata))
-                          for (go in names(go2ids)){
-                              comboList[[go]] <- go2ids[[go]]
-                          }
+                            go2ids <- genesInTerm(GOdata, usedGO(GOdata))
+                            for (go in names(go2ids)){
+                                comboList[[go]] <- go2ids[[go]]
+                            }
                         }
-                      success <- TRUE
-                      }, 
+                        success <- TRUE
+                        }, 
 
-                      error = function(e){ 
-                                print( paste(basename, 
-                                "failed to have any GO", ont, 
-                                "terms mapped to its members!") )
-                                success <- FALSE 
-                                }
-                      )
-                   ''')
+                        error = function(e){
+                                  print(e) 
+                                  print( paste(basename, 
+                                  "failed to have any GO", ont, 
+                                  "terms mapped to its members!") )
+                                  success <- FALSE 
+                                  }
+                  )
+              ''')
 
         robjects.r('''
                 if (success == TRUE){
-
                     jsonout = toJSON(comboList, pretty = TRUE)
-
                     fh <- file(pathout)
                     writeLines(paste("var annotmap = ", jsonout), fh)
                     close(fh)
-
                 }
                    ''')
 
