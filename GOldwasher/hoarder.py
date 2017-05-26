@@ -13,7 +13,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 class Templater(object):
 
-    def __init__(self, title, annot, org, links=None):
+    def __init__(self, title, annot, org, g2i, links=None):
 
         self.title = title
         self.annots = annot
@@ -41,6 +41,8 @@ class Templater(object):
 
             self.link2 = '''<a name="{{ id }}" href="#null" alt="{{ id }}">
                             {{ id }}</a>'''
+
+        self.go2ids = self.read_annot_pseudo_json(g2i)
 
 
 
@@ -224,7 +226,7 @@ class Templater(object):
 
 
         # pre-process enrichment data for display
-        t_bp, t_mf, t_cc, t_kegg = self.process_enrichment_dict(bp, mf, cc,
+        u_bp, t_bp, u_mf, t_mf, u_cc, t_cc, t_kegg = self.process_enrichment_dict(bp, mf, cc,
                                                                 kegg, alpha)
 
 
@@ -242,7 +244,7 @@ class Templater(object):
         if bp is not None:
             bp_info = '''
             <span style="font-size:16px; font-weight: bold;">
-            Biological Process
+            Biological Process ({{ uniq_bp }})
             </span>
 
             <a id="displayBP" href="javascript:toggle('BP');">hide</a></br>
@@ -265,7 +267,7 @@ class Templater(object):
 
         if mf is not None:
             mf_info = '''
-            <span class="secthead">Molecular Function</span>
+            <span class="secthead">Molecular Function ({{ uniq_mf }})</span>
 
             <a id="displayMF" href="javascript:toggle('MF');">show</a></br>
             <div id="toggleMF" class="collapsedDiv">
@@ -287,7 +289,7 @@ class Templater(object):
 
         if cc is not None:
             cc_info = '''
-            <span class="secthead">Cellular Component</span>
+            <span class="secthead">Cellular Component ({{ uniq_cc }})</span>
 
             <a id="displayCC" href="javascript:toggle('CC');">show</a></br>
             <div id="toggleCC" class="collapsedDiv">
@@ -353,8 +355,11 @@ class Templater(object):
                                header = self.process_title(),
                                svgdiv = self.render_svg_inset(),
                                tablegobp = t_bp,
+                               uniq_bp = u_bp,
                                tablegomf = t_mf,
+                               uniq_mf = u_mf,
                                tablegocc = t_cc,
+                               uniq_cc = u_cc,
                                tablekegg = t_kegg,
                                annots = self.render_gene_table(),
                                )
@@ -558,6 +563,10 @@ class Templater(object):
         """
 
         ontslice = enrichRes.loc[enrichRes['elimFisher'] < alpha]
+
+        targs = ontslice["GO.ID"].tolist()
+        ug = len(self.get_unique_genes(targs))
+
         if len(ontslice) > 0:
 
             ontslice["Significant"] = ontslice["GO.ID"].map(str) + str("|") + \
@@ -583,7 +592,43 @@ class Templater(object):
         else:
             restable = self.not_found_response()
 
-        return restable
+        return ug, restable
+
+
+
+    def get_unique_genes(self, go_ids):
+
+        """
+        For a given enriched GO term list 
+        return the _unique_ & _significant_ 
+        genes annotated to those terms.
+        """
+
+        l = []
+        for go in go_ids:
+            for x in self.go2ids[go]:
+                if x in self.annots.keys():
+                    l.append(x)
+
+        return list(set(l))
+
+
+    def read_annot_pseudo_json(self, fpath):
+
+        """
+        Reads the created pseudo-json file
+        and returns it as a dictionary
+        """
+
+        with open(fpath, 'r') as fh:
+            data = fh.readlines()
+
+        data = [x.strip() for x in data[1:]]
+        outstr = ' '.join(data)
+        outstr = '{'+ outstr
+        td = json.loads(outstr)
+
+        return td
 
 
     # TODO: Evaluate if displaying "No significant enriched terms found!"
@@ -596,22 +641,23 @@ class Templater(object):
         """
 
         if gobp is not None:
-            gobptable = self.go_slice(gobp, alpha)
+            ubp, gobptable = self.go_slice(gobp, alpha)
         else:
             gobptable = self.not_found_response()
+            ubp = None
 
 
         if gomf is not None:
-            gomftable = self.go_slice(gomf, alpha)
+            umf, gomftable = self.go_slice(gomf, alpha)
         else:
             gomftable = self.not_found_response()
-
+            umf = None
 
         if gocc is not None:
-            gocctable = self.go_slice(gocc, alpha)
+            ucc, gocctable = self.go_slice(gocc, alpha)
         else:
             gocctable = self.not_found_response()
-
+            ucc = None
 
         if kegg is not None:
             
@@ -640,7 +686,7 @@ class Templater(object):
         else:
             keggtable = self.not_found_response()
 
-        return gobptable, gomftable, gocctable, keggtable
+        return ubp, gobptable, umf, gomftable, ucc, gocctable, keggtable
 
 
     # render this line when no GO terms found to be enriched 

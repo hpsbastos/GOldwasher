@@ -96,6 +96,8 @@ def dotsvg(inputdir, outdir, alpha):
             if t.endswith(".tsv"):
                 target = os.path.join(inputdir, "goenrich", a, t)
                 name = os.path.splitext(target)[0]+"_"+a
+            else:
+                continue
 
             enrich_df = X.read_enrichment_tsv(target)
             goes = X.extract_go_terms(enrich_df, alpha)
@@ -235,6 +237,9 @@ if __name__ == "__main__":
         svgpath = dotsvg(path, svgout, alpha)
 
 
+
+        # ---------------------------------------------------------------------
+
         print "assembling final reports..."
 
         support = os.path.join(reportsout, 'support')
@@ -245,30 +250,7 @@ if __name__ == "__main__":
         except OSError:
             print "Support files not copied/already present!"
 
-        files = list_dir(path)
 
-        jannots = {}
-        for f in files:
-            annotDict = M.read_annotation_file(os.path.join(path,f))
-            jannots["genes"] = json.dumps(annotDict.keys())
-
-            name = os.path.splitext(f)[0]
-            scaffold = hoarder.Templater(name, annotDict, org, linkouts)
-
-            # gets results from topGO/GOstats (filtered by p-value)
-            enriched = M.process_enrichment_values(path, 
-                                            os.path.splitext(f)[0], alpha)
-            # adds "genes" list to the dictionary as new key value
-            enriched.update(jannots)
-
-            html = scaffold.render_main_page(enriched)
-
-            # Write out the file...
-            filename = os.path.join(reportsout, name+".html")
-            with codecs.open(filename, encoding='utf-8', mode="w") as f:
-                f.write(html)
-
-# =============================================================================
 
         M.generate_support_js_file(M.descmap, support, 
                                                 'descriptions.js', 'descmap')
@@ -277,6 +259,36 @@ if __name__ == "__main__":
         E = enricher.GOrich(g_map)
         bunch = M.descmap.keys()[:-1] # need to remove one at least
         E.extract_full_annot_mapping(bunch, annotmap)
+
+        # ---------------------------------------------------------------------
+
+
+        files = list_dir(path)
+
+        jannots = {}
+        for f in files:
+            annotDict = M.read_annotation_file(os.path.join(path,f))
+            jannots["genes"] = json.dumps(annotDict.keys())
+
+            name = os.path.splitext(f)[0]
+            scaffold = hoarder.Templater(name,annotDict,org,annotmap,linkouts)
+
+            # gets results from topGO/GOstats (filtered by p-value)
+            enriched = M.process_enrichment_values(path, 
+                                            os.path.splitext(f)[0], alpha)
+            # adds "genes" list to the dictionary as new key value
+            enriched.update(jannots)
+
+            #print jannots['genes']
+
+            html = scaffold.render_main_page(enriched)
+
+            # Write out the file...
+            filename = os.path.join(reportsout, name+".html")
+            with codecs.open(filename, encoding='utf-8', mode="w") as f:
+                f.write(html)
+
+
 
 
         print 'done!'
