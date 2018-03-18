@@ -8,13 +8,7 @@
 /*.egg-info
 /*.egg
 
-*cover*/*
-*sample*/*
-*athaliana.ini
-*phaeodactylum.ini
-
 /setup.py
-/README.rst
-/MANIFEST.in
+
 /reinstall
-/.coverage
+

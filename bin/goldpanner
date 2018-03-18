@@ -257,7 +257,7 @@ if __name__ == "__main__":
 
         annotmap = os.path.abspath(os.path.join(support, 'annotations.js'))
         E = enricher.GOrich(g_map)
-        bunch = M.descmap.keys()[:-1] # need to remove one at least
+        bunch = M.descmap.keys()#[:-1] # solved on enricher ( factor 2-level issue )
         E.extract_full_annot_mapping(bunch, annotmap)
 
         # ---------------------------------------------------------------------

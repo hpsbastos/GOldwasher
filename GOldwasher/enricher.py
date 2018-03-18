@@ -111,7 +111,7 @@ class GOrich(object):
         transcriptNames <- names(id2go)
 
         interestingGenes <- factor(as.integer( 
-                        transcriptNames %in% as.character(unlist(targetset)) ) )
+                        transcriptNames %in% as.character(unlist(targetset)) ), levels=c(0,1) )
         names(interestingGenes) <- transcriptNames
 
         success = FALSE
@@ -171,13 +171,12 @@ class GOrich(object):
         robjects.globalenv["targetset"] = robjects.StrVector(genelist)
         robjects.globalenv["pathout"] = pathout
 
-
         robjects.r('''
         capture.output(id2go <- readMappings(file = mappings), file="/dev/null")
         transcriptNames <- names(id2go)
 
         interestingGenes <- factor(as.integer( 
-                        transcriptNames %in% as.character(unlist(targetset)) ) )
+                 transcriptNames %in% as.character(unlist(targetset)) ), levels=c(0,1) )
         names(interestingGenes) <- transcriptNames
 
         success = FALSE

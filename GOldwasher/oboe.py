@@ -169,8 +169,11 @@ class OBOe(object):
                     temp.write('"'+row["GO.ID"]+'" '+'[rank="sink"];\n')
                     added.append(row["GO.ID"])
                 else:
+                    try:
+                        term_name = self.ontology[row["GO.ID"]].name
+                    except KeyError:
+                        term_name = self.ontology[self.ontology.alt2id[row["GO.ID"]]].name
 
-                    term_name = self.ontology[row["GO.ID"]].name
                     truncterm = self.process_term_name(term_name)
                     trunctermplus = row["GO.ID"]+"\n"+truncterm+"\n"+ \
                                     str(row["elimFisher"])+"\n"+"("+ \
@@ -198,7 +201,10 @@ class OBOe(object):
                     temp.write('"'+go+'" '+'[rank="sink" style="filled" label="'
                                                     +go+'\\n'+term_name+'"];\n')
                 else:
-                    term_name = self.ontology[go].name
+                    try:
+                        term_name = self.ontology[go].name
+                    except KeyError:
+                        term_name = self.ontology[self.ontology.alt2id[go]].name
                     temp.write('"'+go+'" '+'[style="filled" label="'+go+
                                            '" tooltip="'+term_name+'"];\n')
 

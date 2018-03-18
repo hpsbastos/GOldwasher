@@ -1,17 +1,17 @@
 
 
 GOldwasher
-=======
+==========
 
 GOldwasher is a light wrapper for the R package 
-[topGO](https://bioconductor.org/packages/release/bioc/html/topGO.html). The 
+**topGO** (https://bioconductor.org/packages/release/bioc/html/topGO.html). The 
 function of GOldwasher is limited to the calculation of GO term enrichment 
 (via elimFisher algorithm) of target gene lists and also the generation their 
 respective GO subgraph images (via 
-[Graphviz](http://www.graphviz.org/) - Graph Visualization Software) 
+**Graphviz** (http://www.graphviz.org/) - Graph Visualization Software) 
 subsuming their annotations. These elements are then incorporated together into 
 html a single report file per input list which can then be  interactively 
-explored. This module purpose and focus is to facilitate batch processing of 
+explored. The purpose and focus of this module is to facilitate batch processing of 
 several gene lists.
 
 ----------
@@ -20,8 +20,9 @@ several gene lists.
 
 Provides basic functionality and basic documentation. Methods and functions 
 are working if the input does not deviate from expected (none to little input 
-sanitization) but they haven't been extensively tested.
+sanitization) but they haven't been extensively tested.  
 
+----
 
 **TODO:**
   
@@ -37,13 +38,16 @@ sanitization) but they haven't been extensively tested.
 Installation
 ------------
 
-    pip install GOldwasher-0.2.8.tar.gz
+.. code::
+
+  # pip install GOldwasher-0.2.8.tar.gz
 
 or
 
-    pip install GOldwasher
+.. code::
 
-or you can just checkout the code out of here and fiddle with it as you wish.
+  # pip install GOldwasher
+
 
 **Requirements**:
 The non-python dependencies are:
@@ -68,38 +72,45 @@ Usage
 GOldwasher can be used as a module, making use of its methods, or more easily
 it can conveniently be used from its command tool 'goldpanner'
 
+.. code::
 
     goldpanner [-h] -c CONFIG -i INPUTDIR
                   {ANNOT,ENRICH,DAG,REPORT}
- e.g.:
 
-    goldpanner -c settings.ini -i lists/ REPORT
+e.g.:
+ 
+.. code::
 
--**c**  
-ini file with general settings using the following structure:
+  goldpanner -c settings.ini -i lists/ REPORT
 
-    [meta]
-    [vars]
+-**c** ini file with general settings using the following structure:
+
+    *[meta]*
+    *[vars]*
+
     alpha = 0.01  
+
     organism = phaeodactylum
 
-    [sources]
+
+    *[sources]*
+
     functionalDesc = /path/to/tabseparedfile/withIDtabFunctionalDescription.txt
+
     g_map = /path/to/mappings/identifier2GOaccessions.txt
+
     obofile = /path/to/go-basic.obo
+
 
     #linkinsets = /path/to/custom/organisms.json
 
-
 **[vars]**
----
 
 **alpha** - significance level  
 
 **organism** - name of the organism (as key name on 'organisms.json')
 
 **[sources]**
----
 
 **functionalDesc** 
 
@@ -110,6 +121,9 @@ ini file with general settings using the following structure:
     path to tab-separated file holding a column of identifiers and a second column with their associated GO term accession numbers separated by commas.            
 
     e.g.:
+
+    .. code::
+
         Phatr3_J43587.t1  GO:0006396,GO:0005622,GO:0005515 
 
 **obofile** 
@@ -119,14 +133,13 @@ ini file with general settings using the following structure:
 
 **linkinsets**
 
-    If using organisms other than 'Arabidopis thaliana' or 'Phaeodactylum tricornutum' uncomment this variable and set it as the path to the customized 'organisms.json'. By default no cross-links are generated for unknown/unset organisms.
+    If using organisms other than *Arabidopis thaliana* or *Phaeodactylum tricornutum* uncomment this variable and set it as the path to the customized 'organisms.json'. By default no cross-links are generated for unknown/unset organisms.
 
 
 **-i** directory with the target lists.
 
 
-  **Commands**:
-  ---
+  **COMMANDS**:
 
     ANNOT - annotates identifiers lists with respective available functional descriptors.
 
@@ -136,7 +149,7 @@ ini file with general settings using the following structure:
 
     REPORT - generates an interactive html GO enrichment report for each list on the input directory.  
 
-
+....
 
 **optional argument**:
 
@@ -147,36 +160,39 @@ ini file with general settings using the following structure:
 
 
 
+Acknowledgements
+----------------
+
+
 
 3rd party libraries
--------
-
+---
 Additional required 3rd party content is also bundled together with the source 
 code for this program. That content is listed below along with the licenses 
 under which they have been released.
 
-> **OBO Ontology python module**  
-http://pythonhosted.org/Orange-Bioinformatics/  
-Copyright (c) Bioinformatics Laboratory, FRI UL  
-Released under the GNU General Public License license
+| > **OBO Ontology python module**  
+| http://pythonhosted.org/Orange-Bioinformatics/  
+| Copyright (c) Bioinformatics Laboratory, FRI UL  
+| Released under the GNU General Public License license
 
-> **Sortable tables**  
-http://www.kryogenix.org/code/browser/sorttable/  
-Copyright (c) Stuart Langridge   
-Released under the X11 (MIT) license  
-http://www.kryogenix.org/code/browser/licence.html  
+| > **Sortable tables**  
+| http://www.kryogenix.org/code/browser/sorttable/  
+| Copyright (c) Stuart Langridge   
+| Released under the X11 (MIT) license  
+| http://www.kryogenix.org/code/browser/licence.html  
 
-> **jQuery**  
-  Copyright (c) jQuery Foundation and other contributors  
-  Released under the MIT license  
-  http://jquery.org/license  
+| > **jQuery**  
+| Copyright (c) jQuery Foundation and other contributors  
+| Released under the MIT license:  
+| http://jquery.org/license  
 
-> **SVGPan v3.2.9**  
-  https://github.com/ariutta/svg-pan-zoom  
-  Copyright (c) Andrea Leofreddi  
-  The code from the SVGPan library is licensed under the following BSD license  
-  https://raw.githubusercontent.com/ariutta/svg-pan-zoom/master/LICENSE  
+| > **SVGPan v3.2.9**  
+| https://github.com/ariutta/svg-pan-zoom  
+| Copyright (c) Andrea Leofreddi  
+| The code from the SVGPan library is licensed under the following BSD license  
+| https://raw.githubusercontent.com/ariutta/svg-pan-zoom/master/LICENSE  
 
-> **Tabbed Content v2013.7.6**  
-  http://www.menucool.com/tabbed-content  
-  Free to use
+| > **Tabbed Content v2013.7.6**  
+| http://www.menucool.com/tabbed-content  
+| Free to use

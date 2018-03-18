@@ -1,0 +1,8 @@
+include LICENSE
+include README.rst
+include GOldwasher/organisms.json
+include GOldwasher/libraries/__init__.py
+include GOldwasher/libraries/ontology.py
+include GOldwasher/tests/input/ *
+recursive-include GOldwasher/libraries/ *
+recursive-include GOldwasher/libraries/support *
