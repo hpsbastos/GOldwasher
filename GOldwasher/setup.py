@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 setup(name='makimono',
-      version='0.1.3',
+      version='0.2.6',
       description='Visualizations for RNA-Seq expression data',
       long_description=readme(),
       classifiers=[
@@ -27,7 +27,9 @@ setup(name='makimono',
           'numpy',
           'pandas',
           'matplotlib',
-          'rpy2',  
+          'rpy2',
+          'pydot',
+          'graphviz-python'
       ],
       scripts=['bin/makisu'],
       test_suite='nose.collector',

@@ -33,12 +33,28 @@ class OBOe(object):
 
         self.obofile = obopath
         self.ontology = self.read_obo()
+        self.ontology.alt2id = self.add_alt2id()
 
 
     def read_obo(self):
 
         ont = OBOOntology(self.obofile)
         return ont
+
+    def add_alt2id(self):
+
+        "Needed to handle deprecated go ids"
+
+        alt2id = {}
+        for term in self.ontology.id2term:   
+            for i in range(0, len(self.ontology.id2term[term].tags())-1 ):
+                tag = self.ontology.id2term[term]._format_single_tag(i)
+                token = tag.split(': ')
+                if token[0] == 'alt_id':
+                    alt2id.setdefault(token[1].strip(), None)
+                    alt2id[token[1].strip()] = term
+        return alt2id
+
 
     def create_ntx_graph(self, termlist):
 

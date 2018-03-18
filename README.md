@@ -16,7 +16,7 @@ several gene lists.
 
 ----------
 
-**Current release:** *0.2.5 (alpha)*
+**Current release:** *0.2.6 (alpha)*
 
 Provides basic functionality and basic documentation. Methods and functions 
 are working if the input does not deviate from expected (none to little input 
@@ -37,7 +37,7 @@ sanitization) but they haven't been extensively tested.
 Installation
 ------------
 
-    pip install GOldwasher-0.2.5.tar.gz
+    pip install GOldwasher-0.2.6.tar.gz
 
 or
 
@@ -49,9 +49,12 @@ or you can just checkout the code out of here and fiddle with it as you wish.
 The non-python dependencies are:
 
 - **graphviz** http://www.graphviz.org/
-- **topGO** http://bioconductor.org/packages/release/bioc/html/topGO.html (and inherently **R**)
 - **GO OBO file** (http://geneontology.org/page/download-ontology)
 
+R packages (and inherently **R**):
+
+- **topGO** http://bioconductor.org/packages/release/bioc/html/topGO.html 
+- **jsonlite** https://cran.r-project.org/web/packages/jsonlite/index.html
 
 These packages/file should be installed/downloaded for GOldwasher to work. All 
 other python dependencies should be automatically resolved by pip.
