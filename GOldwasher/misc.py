@@ -70,7 +70,7 @@ class Slicer(object):
                                     self.descmap[frags[0].strip()]+'\n')
                     except KeyError:
                         out.write(line.strip('\n')+'\t\n')
-                        raise
+                        #raise
         except IOError as err:
             print 'Could not read/write file:', err.filename
             raise

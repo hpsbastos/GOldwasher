@@ -16,7 +16,7 @@ several gene lists.
 
 ----------
 
-**Current release:** *0.2.8 (alpha)*
+**Current release:** *0.2.9 (alpha)*
 
 Provides basic functionality and basic documentation. Methods and functions 
 are working if the input does not deviate from expected (none to little input 
